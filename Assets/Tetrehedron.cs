@@ -10,7 +10,7 @@ public class Tetrehedron : MonoBehaviour
     public Mesh mesh;
     
     public Vector3 linearVelocity;
-    Vector3[] vertices;
+    public Vector3[] vertices;
     public Tetrehedron otherShape;
     float t;
     public Vector3 rotationalVelocity;
@@ -22,9 +22,10 @@ public class Tetrehedron : MonoBehaviour
         t = 0;
         var thisMatrix = transform.localToWorldMatrix;
         vertices = mesh.vertices;
-        for(int i = 0; i < 4; i++)
+        for (int i = 0; i < 4; i++)
         {
-            Debug.Log(gameObject.name + " vertex " + (i+1) + " at " + vertices[i]);
+            vertices[i] = transform.localToWorldMatrix.MultiplyPoint3x4(vertices[i]);
+            //Debug.Log(gameObject.name + " vertex " + (i+1) + " at " + vertices[i]);
         }
 
 
@@ -33,6 +34,7 @@ public class Tetrehedron : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        /*
         if(i < 1)
         {
             CollisionCheck(otherShape);
@@ -43,7 +45,14 @@ public class Tetrehedron : MonoBehaviour
            // Debug.Log(gameObject.name + " vertex " + i + " at " + transform.localToWorldMatrix.MultiplyPoint3x4(vertices[i]));
         }
         
-
+    */
+        var thisMatrix = transform.localToWorldMatrix;
+        vertices = mesh.vertices;
+        for (int i = 0; i < 4; i++)
+        {
+            vertices[i] = transform.localToWorldMatrix.MultiplyPoint3x4(vertices[i]);
+            //Debug.Log(gameObject.name + " vertex " + (i+1) + " at " + vertices[i]);
+        }
         t += Time.deltaTime;
         transform.position += linearVelocity * Time.deltaTime;
         //Vector2 axis = Vector3.Cross(Vector3.up, linearVelocity);
@@ -61,6 +70,7 @@ public class Tetrehedron : MonoBehaviour
 
 
         transform.rotation = orientation.normalized;
+        
     }
 
    private void CollisionCheck(Tetrehedron otherShape_)
@@ -101,5 +111,11 @@ public class Tetrehedron : MonoBehaviour
     public Vector3[] GetVertices()
     {
         return vertices;
+    }
+
+    public Vector3 FindCenter()
+    {
+        Vector3 result = (vertices[0] + vertices[1] + vertices[2] + vertices[3]) / 4;
+        return result;
     }
 }

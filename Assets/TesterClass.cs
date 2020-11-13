@@ -16,38 +16,45 @@ public struct tetrahedron
 
 public class TesterClass : MonoBehaviour
 {
-    public tetrahedron A, B;
-    Vector3 d, pointA, pointB, pointC, pointD;
+  //  public tetrahedron A, B;
+    public Tetrehedron A, B;
+    public Vector3 d, pointA, pointB, pointC, pointD;
+    Vector3[] verticesA = new Vector3[4];
+    Vector3[] verticesB = new Vector3[4];
+
     public Simplex s1;
     public void Start()
     {
-        A = new tetrahedron(new Vector3(0,0,0), new Vector3(1, 0, 0), new Vector3(0.5f, 0, 0.9f), new Vector3(0.5f,0.8f,0.3f));
-        B = new tetrahedron(new Vector3(0, -0.7f, 0), new Vector3(1, -0.7f, 0), new Vector3(0.5f, -0.7f, 0.9f), new Vector3(0.5f, 0.1f, 0.3f));
-        CalculateD(A, B);
-        ProjectSimplex(d, A, B);
-        CalculateDeterminants();
+       
+        // A = new tetrahedron(new Vector3(0,0,0), new Vector3(1, 0, 0), new Vector3(0.5f, 0, 0.9f), new Vector3(0.5f,0.8f,0.3f));
+        //  B = new tetrahedron(new Vector3(0, -0.7f, 0), new Vector3(1, -0.7f, 0), new Vector3(0.5f, -0.7f, 0.9f), new Vector3(0.5f, 0.1f, 0.3f));
+        
 
     }
     private void Update()
     {
+        CalculateD(A, B);
+        ProjectSimplex(d, A, B);
+        CalculateDeterminants();
         s1.pointA = pointA;
         s1.pointB = pointB;
         s1.pointC = pointC;
         s1.pointD = pointD;
     }
-    void CalculateD(tetrahedron A_, tetrahedron B_)
+    void CalculateD(Tetrehedron A_, Tetrehedron B_)
     {
-        Vector3 c1 = new Vector3(0.5f, 0.4f, 0.3f); 
+        Vector3 c1 = A_.FindCenter();
 
-        Vector3 c2 = new Vector3(0.5f, -0.3f, 0.3f);
+        Vector3 c2 = B_.FindCenter();
 
-
+       
         d = c2 - c1;
         d.Normalize();
 
+
     }
 
-    void ProjectSimplex(Vector3 d_, tetrahedron A_, tetrahedron B_)
+    void ProjectSimplex(Vector3 d_, Tetrehedron A_, Tetrehedron B_)
     {
         pointA = FindPoint(d_);
         d_ *= -1;
@@ -107,45 +114,11 @@ public class TesterClass : MonoBehaviour
         float d3 = m3.determinant;
         float d4 = m4.determinant;
         float d5 = m5.determinant;
-        Debug.Log("Determinants: " + d1 + " " + d2 + " " + d3 + " " + d4 + " " + d5);
+        //Debug.Log("Determinants: " + "d1 = " + d1 + " d2 = " + d2 + " d3 = " + d3 + " d4 = " + d4 + " d5 = " + d5);
 
-        if ((d1 < 0 && d2 < 0 && d3 < 0 && d4 < 0 && d5 < 0) || 
-            (d1 > 0 && d2 > 0 && d3 > 0 && d4 > 0 && d5 > 0))
-        {
-            Debug.Log("Origin is within boundaries!");
-            // origin is within boundaries
-        }
-
-        else if(((d2 > 0) && (d3< 0 && d4 < 0 && d5 <0)) ||
-            ((d2  < 0) && (d3 > 0 && d4 > 0 && d5 > 0)))
-        {
-            d = FindNewD(pointB, pointC, pointD);
-            pointA = FindPoint(d);
-            CalculateDeterminants();
-        }
-        else if (((d3 > 0) && (d2 < 0 && d4 < 0 && d5 < 0)) ||
-            ((d3 < 0) && (d2 > 0 && d4 > 0 && d5 > 0)))
-        {
-            d = FindNewD(pointA, pointC, pointD);
-            pointB = FindPoint(d);
-            CalculateDeterminants();
-
-        }
-        else if (((d4 > 0) && (d3 < 0 && d2 < 0 && d5 < 0)) ||
-            ((d4 < 0) && (d3 > 0 && d2 > 0 && d5 > 0)))
-        {
-            d = FindNewD(pointA, pointB, pointD);
-            pointC = FindPoint(d);
-            CalculateDeterminants();
-
-        }
-        else if (((d5 > 0) && (d3 < 0 && d4 < 0 && d2 < 0)) ||
-            ((d5 < 0) && (d3 > 0 && d4 > 0 && d2 > 0)))
-        {
-            d = FindNewD(pointA, pointB, pointC);
-            pointD = FindPoint(d);
-            CalculateDeterminants();
-
+       if((d1 > 0 && d2 > 0 && d3 > 0 && d4 > 0 && d5 > 0) || (d1 <0 && d2 < 0 && d3 < 0 && d4 < 0 && d5 < 0)){
+            Debug.Log("collision");
+           
         }
 
 
@@ -157,31 +130,31 @@ public class TesterClass : MonoBehaviour
         Vector3 p1, p2;
         p1 = new Vector3(0, 0, 0);
         p2 = new Vector3(0, 0, 0);
-        float s1A = Vector3.Dot(A.A, d_);
-        float s1B = Vector3.Dot(A.B, d_);
-        float s1C = Vector3.Dot(A.C, d_);
-        float s1D = Vector3.Dot(A.D, d_);
+        float s1A = Vector3.Dot(A.GetVertices()[0], d_);
+        float s1B = Vector3.Dot(A.GetVertices()[1], d_);
+        float s1C = Vector3.Dot(A.GetVertices()[2], d_);
+        float s1D = Vector3.Dot(A.GetVertices()[3], d_);
         float maxs1 = Mathf.Max(s1A, s1B, s1C, s1D);
 
-        if (maxs1 == s1A) p1 = A.A;
-        else if (maxs1 == s1B) p1 = A.B;
-        else if (maxs1 == s1C) p1 = A.C;
-        else if (maxs1 == s1D) p1 = A.D;
+        if (maxs1 == s1A) p1 = A.GetVertices()[0];
+        else if (maxs1 == s1B) p1 = A.GetVertices()[1];
+        else if (maxs1 == s1C) p1 = A.GetVertices()[2];
+        else if (maxs1 == s1D) p1 = A.GetVertices()[3];
 
 
-        float s2A = Vector3.Dot(B.A, d_);
-        float s2B = Vector3.Dot(B.B, d_);
-        float s2C = Vector3.Dot(B.C, d_);
-        float s2D = Vector3.Dot(B.D, d_);
+        float s2A = Vector3.Dot(B.GetVertices()[0], d_);
+        float s2B = Vector3.Dot(B.GetVertices()[1], d_);
+        float s2C = Vector3.Dot(B.GetVertices()[2], d_);
+        float s2D = Vector3.Dot(B.GetVertices()[3], d_);
         float minS2 = Mathf.Min(s2A, s2B, s2C, s2D);
 
-        if (minS2 == s2A) p2 = B.A;
-        else if (minS2 == s2B) p2 = B.B;
-        else if (minS2 == s2C) p2 = B.C;
-        else if (minS2 == s2D) p2 = B.D;
+        if (minS2 == s2A) p2 = B.GetVertices()[0];
+        else if (minS2 == s2B) p2 = B.GetVertices()[1];
+        else if (minS2 == s2C) p2 = B.GetVertices()[2];
+        else if (minS2 == s2D) p2 = B.GetVertices()[3];
 
         result = p1 - p2;
-        Debug.Log("Point: " + result);
+        //Debug.Log("Point: " + result);
         return result;
     }
 
